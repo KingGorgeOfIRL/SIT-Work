@@ -51,10 +51,47 @@ Note:
     .	Include comment to your code that explains what each section of it does. 
 *******************************************************************************/
 #include <stdio.h>
-
+#include <stdlib.h>
 int main()
 {
     /* code here */
+    char buff[10];
+    int anwser;
+    while (anwser > 1000 || anwser < 1){
+        printf("Player 1, enter a number between 1 and 1000:\n");
+        scanf("%d",&anwser);
+        if (anwser > 1000 || anwser < 1){
+            printf("That number is out of range.\n");
+        }
+    };
 
+    int num_guesses = 10;
+    int guess;
+    for (int i = 0; i < num_guesses;i++){
+        do{
+            if (i >= 9){
+            printf("Player 2, you have %d guess remaining.\n",num_guesses-i);
+            }else{
+                printf("Player 2, you have %d guesses remaining.\n",num_guesses-i);
+            };
+            printf("Enter your guess:\n");
+            scanf("%d",&guess);
+            if (guess >= 1001 || guess <= 0){
+                printf("That number is out of range.\n");
+            };
+        }while (guess >= 1001 || guess <= 0);
+
+        if (guess > anwser){
+            printf("Too high.\n");
+        }else if (guess == anwser){
+            printf("Player 2 wins.\n");
+            break;
+        }else{
+            printf("Too low.\n");
+        };
+    };
+    if (guess != anwser){
+        printf("Player 1 wins.\n");
+    };
     return 0;
 }

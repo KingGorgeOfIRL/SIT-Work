@@ -1,0 +1,4 @@
+docm
+xlsm
+pptm
+dotm

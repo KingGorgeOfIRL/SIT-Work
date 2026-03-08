@@ -77,6 +77,7 @@ Example - 2:
 #include <stdbool.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdlib.h>
 
 char* lower_char(char* input){
     for(int i = 0; input[i]; i++){
@@ -100,33 +101,29 @@ int main()
 
     printf("Should the match be case-sensitive? (Y/N):\n");
     fgets(caseSensitive,sizeof(caseSensitive),stdin);
-    caseSensitive[strlen(caseSensitive)-1] = '\0';
 
     int largest = strlen(pattern);
     int input_length = strlen(input);
-    int check;
-    for (int i = 0; i < input_length; i++){
-        for (int p = 0; p < largest;p++){
-            if (p+1 >= largest){
+    bool case_sensitivity = (caseSensitive[0] == 'Y') ? true : false;
+    int difference;
+    for (int i = 0; i < input_length && position > sizeof(input); i++){
+        for (int p = 0; p <= largest;p++){
+            difference = abs(input[i+p] - pattern[p]);
+            /* check for character differences*/
+            if (p == largest){
                 position = i;
-                break;
-            }
-            char str1 = input[i+p]+"\n";
-            char str2 = pattern[p]+"\n";
-            check = strcmp(input[i+p]+"\n",pattern[p]+"\n");
-            if (check == 0){
+            }else if (difference == 0){
+                continue;
+            }else if (difference == 32 && !case_sensitivity){
                 continue;
             }else if (pattern[p] == '_' && isspace(input[i+p])){
                 continue;
             }else if (pattern[p] == '.'){
                 continue;
-            }else if (check == 32 && lower_char(caseSensitive) == "n"){
-                continue;
             }else{
                 break;
             }
         }
-
     }
     if (position > sizeof(input)){
         printf("No match.\n");

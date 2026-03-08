@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Secure cashless payments and promotions for customers." />
+  <title>PayWave+ | Cashless Payments & Promotions</title>
+
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#121b2f;
+      --muted:#9fb0d0;
+      --text:#e8efff;
+      --accent:#66e3ff;
+      --accent2:#7cffb2;
+      --warn:#ffcc66;
+      --border: rgba(255,255,255,.12);
+      --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --radius: 16px;
+      --max: 1080px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+      background:
+        radial-gradient(1200px 600px at 10% 10%, rgba(102,227,255,.18), transparent 55%),
+        radial-gradient(900px 500px at 90% 20%, rgba(124,255,178,.14), transparent 60%),
+        radial-gradient(700px 400px at 70% 90%, rgba(255,204,102,.10), transparent 50%),
+        var(--bg);
+      color:var(--text);
+      line-height:1.5;
+    }
+    a{ color:var(--accent); text-decoration:none; }
+    a:hover{ text-decoration:underline; }
+
+    .container{ max-width:var(--max); margin:0 auto; padding: 18px; }
+    header{
+      position: sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background: rgba(11,18,32,.65);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:14px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-weight:700;
+      letter-spacing:.2px;
+    }
+    .logo{
+      width:36px; height:36px; border-radius:12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 10px 25px rgba(102,227,255,.18);
+    }
+    nav ul{ list-style:none; padding:0; margin:0; display:flex; gap:12px; flex-wrap:wrap; }
+    nav a{
+      display:inline-block;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      color: var(--text);
+      opacity:.9;
+    }
+    nav a:hover{
+      border-color: var(--border);
+      background: rgba(255,255,255,.04);
+      text-decoration:none;
+    }
+
+    .hero{
+      padding: 42px 0 18px;
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+    .panel{
+      background: rgba(18,27,47,.70);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .hero .panel{ padding: 22px; }
+    h1{
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.12;
+    }
+    .subtitle{
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 16px;
+      max-width: 60ch;
+    }
+    .pillrow{
+      display:flex; flex-wrap:wrap; gap:10px; margin: 14px 0 18px;
+    }
+    .pill{
+      font-size: 13px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      opacity:.95;
+    }
+    .cta{
+      display:flex; gap:12px; flex-wrap:wrap;
+      margin-top: 18px;
+    }
+    .btn{
+      cursor:pointer;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 11px 14px;
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      font-weight: 600;
+    }
+    .btn.primary{
+      border-color: rgba(102,227,255,.35);
+      background: linear-gradient(135deg, rgba(102,227,255,.18), rgba(124,255,178,.12));
+    }
+    .btn:hover{ filter: brightness(1.05); }
+    .small{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    .card{
+      padding: 18px;
+    }
+    .stat{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .kpi{
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255,255,255,.03);
+    }
+    .kpi b{ font-size: 18px; display:block; }
+    .kpi span{ color: var(--muted); font-size: 12px; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin: 14px 0 26px;
+    }
+    .feature h3{ margin: 0 0 6px; font-size: 16px; }
+    .feature p{ margin: 0; color: var(--muted); font-size: 14px; }
+
+    section{
+      margin: 18px 0;
+    }
+    section h2{
+      margin: 0 0 10px;
+      font-size: 22px;
+    }
+    .two{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    form{
+      display:grid;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    label{ font-size: 13px; color: var(--muted); }
+    input, select, textarea{
+      width:100%;
+      padding: 11px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.15);
+      color: var(--text);
+      outline: none;
+    }
+    textarea{ min-height: 90px; resize: vertical; }
+    .note{
+      border-left: 3px solid rgba(255,204,102,.65);
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255,204,102,.08);
+      color: var(--text);
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    .faq details{
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,.03);
+      margin: 10px 0;
+    }
+    .faq summary{
+      cursor:pointer;
+      font-weight: 600;
+    }
+    .faq p{ color: var(--muted); margin: 8px 0 0; }
+
+    footer{
+      margin-top: 28px;
+      padding: 18px 0 26px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .footgrid{
+      display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      align-items:center;
+    }
+    code{
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 8px;
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+    }
+
+    @media (max-width: 900px){
+      .hero{ grid-template-columns: 1fr; }
+      .grid{ grid-template-columns: 1fr; }
+      .two{ grid-template-columns: 1fr; }
+      nav ul{ gap:6px; }
+      nav a{ padding: 8px 10px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <div>PayWave+</div>
+          <div style="font-size:12px;color:var(--muted);font-weight:600;">Enterprise Cashless Network Demo</div>
+        </div>
+      </div>
+      <nav aria-label="Primary">
+        <ul>
+          <li><a href="#promo">Promotions</a></li>
+          <li><a href="#signup">Sign Up</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="hero">
+      <div class="panel">
+        <h1>Fast, secure, cashless payments — with rewards that feel worth it.</h1>
+        <p class="subtitle">
+          Welcome to PayWave+ — a simple customer-facing page for our enterprise network project.
+          Use this page as the demo landing page for your Web server and DNS setup.
+        </p>
+
+        <div class="pillrow" aria-label="Highlights">
+          <div class="pill">✅ Domain-ready: <code>YOURHOSTNAME.sict.net</code></div>
+          <div class="pill">✅ Promo + signup flow</div>
+          <div class="pill">✅ Lightweight HTML/CSS/JS only</div>
+          <div class="pill">✅ Works offline (no CDN)</div>
+        </div>
+
+        <div class="cta">
+          <button class="btn primary" onclick="document.querySelector('#signup').scrollIntoView({behavior:'smooth'})">
+            Get Promo Code
+          </button>
+          <button class="btn" onclick="document.querySelector('#promo').scrollIntoView({behavior:'smooth'})">
+            View Promotions
+          </button>
+        </div>
+
+        <div class="small">
+          Tip: If your DNS is working, you can access this page via
+          <code>http://YOURHOSTNAME.sict.net</code> (or <code>https://</code> if you later add TLS).
+        </div>
+      </div>
+
+      <aside class="panel card" aria-label="Status & demo info">
+        <h2 style="margin:0 0 8px;font-size:18px;">Demo Snapshot</h2>
+        <div style="color:var(--muted);font-size:14px;">
+          Suggested talking points during demo:
+          <ul>
+            <li>Web page reachable from VLANs</li>
+            <li>DNS authoritative resolves your hostname</li>
+            <li>DNS cache speeds up repeated lookups</li>
+          </ul>
+        </div>
+
+        <div class="stat">
+          <div class="kpi">
+            <b id="visits">—</b>
+            <span>Local page visits (browser)</span>
+          </div>
+          <div class="kpi">
+            <b id="promoLeft">—</b>
+            <span>Promo codes left (demo)</span>
+          </div>
+        </div>
+
+        <div class="note">
+          This site does <b>not</b> store real customer data.
+          The form is demo-only (shows a confirmation message).
+        </div>
+      </aside>
+    </div>
+
+    <section class="panel card" aria-label="Features">
+      <h2 style="margin-top:0;">Why PayWave+</h2>
+      <div class="grid">
+        <div class="feature">
+          <h3>Reliable access</h3>
+          <p>Designed to work smoothly with enterprise network segmentation and redundant uplinks.</p>
+        </div>
+        <div class="feature">
+          <h3>Simple promotions</h3>
+          <p>Quick signup to claim a promo code for your first cashless transaction.</p>
+        </div>
+        <div class="feature">
+          <h3>Secure by design</h3>
+          <p>Minimal page footprint. No third-party scripts. Easy to audit.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="promo" class="two">
+      <div class="panel card">
+        <h2 style="margin-top:0;">Current Promotions</h2>
+        <div class="kpi" style="margin:10px 0;">
+          <b>🎁 Welcome Bonus</b>
+          <span>Get $3 off your first cashless payment (demo promo code).</span>
+        </div>
+        <div class="kpi" style="margin:10px 0;">
+          <b>⭐ Loyalty Points</b>
+          <span>Earn points every transaction (simulated for project demo).</span>
+        </div>
+        <div class="kpi" style="margin:10px 0;">
+          <b>🏷️ Partner Deals</b>
+          <span>Limited-time partner discounts (placeholder content).</span>
+        </div>
+      </div>
+
+      <div class="panel card">
+        <h2 style="margin-top:0;">How it works</h2>
+        <ol style="color:var(--muted);">
+          <li>Sign up using your name + email.</li>
+          <li>Receive a demo promo code instantly.</li>
+          <li>Use the code during checkout (simulated).</li>
+        </ol>
+        <div class="note">
+          Network test tip: Try loading this page from different VLAN ports and confirm
+          you can still reach <code>YOURHOSTNAME.sict.net</code>.
+        </div>
+      </div>
+    </section>
+
+    <section id="signup" class="panel card" aria-label="Signup form">
+      <h2 style="margin-top:0;">Sign Up for a Promo Code</h2>
+      <p style="margin:0;color:var(--muted);">
+        Demo-only signup. The page will generate a promo code locally and display it.
+      </p>
+
+      <form id="signupForm">
+        <div class="two">
+          <div>
+            <label for="name">Full name</label>
+            <input id="name" name="name" type="text" placeholder="e.g. Tan Lee Tuan" required />
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="e.g. user@example.com" required />
+          </div>
+        </div>
+
+        <div class="two">
+          <div>
+            <label for="channel">Preferred channel</label>
+            <select id="channel" name="channel" required>
+              <option value="card">Card payment</option>
+              <option value="qr">QR payment</option>
+              <option value="wallet">Mobile wallet</option>
+            </select>
+          </div>
+          <div>
+            <label for="tier">Customer type</label>
+            <select id="tier" name="tier" required>
+              <option value="new">New customer</option>
+              <option value="returning">Returning customer</option>
+              <option value="business">Business customer</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label for="msg">Message (optional)</label>
+          <textarea id="msg" name="msg" placeholder="Any feedback for our demo?"></textarea>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn primary" type="submit">Generate Promo Code</button>
+          <button class="btn" type="button" onclick="resetDemo()">Reset Demo Counters</button>
+        </div>
+
+        <div id="result" class="note" style="display:none;"></div>
+      </form>
+    </section>
+
+    <section id="faq" class="panel card faq" aria-label="FAQ">
+      <h2 style="margin-top:0;">FAQ</h2>
+
+      <details>
+        <summary>What is this website used for?</summary>
+        <p>
+          It’s a simple landing page to demonstrate your team’s Web server hosting and DNS access
+          in the enterprise network project.
+        </p>
+      </details>
+
+      <details>
+        <summary>Does this store real customer data?</summary>
+        <p>
+          No. This page generates a demo promo code locally in the browser and does not send data anywhere.
+        </p>
+      </details>
+
+      <details>
+        <summary>How do we show DNS caching works?</summary>
+        <p>
+          First time a client resolves <code>YOURHOSTNAME.sict.net</code> may be slower.
+          Repeat the lookup and show faster responses via your caching DNS server (use Wireshark if required).
+        </p>
+      </details>
+
+      <details>
+        <summary>Can we customize this page for higher marks?</summary>
+        <p>
+          Yes—add your company name, branding, real promo details, or reuse past INF1005 work to stand out.
+        </p>
+      </details>
+    </section>
+
+    <section id="contact" class="panel card" aria-label="Contact">
+      <h2 style="margin-top:0;">Contact</h2>
+      <p style="margin:0;color:var(--muted);">
+        For project demo, you can set these as placeholders:
+      </p>
+      <ul style="color:var(--muted);">
+        <li>Email: <a href="mailto:support@YOURHOSTNAME.sict.net">support@YOURHOSTNAME.sict.net</a></li>
+        <li>Phone: +65 6XXX XXXX</li>
+        <li>Office: Singapore (Demo)</li>
+      </ul>
+      <div class="note">
+        Remember to update: <code>YOURHOSTNAME</code> and any contact info before hosting.
+      </div>
+    </section>
+
+    <footer>
+      <div class="footgrid">
+        <div>
+          © <span id="year"></span> PayWave+ (Demo Site) · Hosted on your enterprise Web server
+        </div>
+        <div>
+          Domain: <code>YOURHOSTNAME.sict.net</code>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    // Simple demo counters (stored in browser localStorage)
+    const KEY_VISITS = "pw_visits";
+    const KEY_LEFT = "pw_promoleft";
+
+    function getNum(key, fallback){
+      const v = Number(localStorage.getItem(key));
+      return Number.isFinite(v) ? v : fallback;
+    }
+    function setNum(key, val){
+      localStorage.setItem(key, String(val));
+    }
+
+    function updateCounters(){
+      const visits = getNum(KEY_VISITS, 0);
+      const left = getNum(KEY_LEFT, 50);
+      document.getElementById("visits").textContent = visits;
+      document.getElementById("promoLeft").textContent = left;
+    }
+
+    function resetDemo(){
+      setNum(KEY_VISITS, 0);
+      setNum(KEY_LEFT, 50);
+      const r = document.getElementById("result");
+      r.style.display = "block";
+      r.textContent = "Demo counters reset. Promo codes left = 50.";
+      updateCounters();
+    }
+
+    function makeCode(){
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let out = "PW-";
+      for(let i=0;i<8;i++){
+        out += chars[Math.floor(Math.random()*chars.length)];
+      }
+      return out;
+    }
+
+    // On load
+    (function init(){
+      // visits++
+      const visits = getNum(KEY_VISITS, 0) + 1;
+      setNum(KEY_VISITS, visits);
+
+      // set defaults
+      if(localStorage.getItem(KEY_LEFT) === null){
+        setNum(KEY_LEFT, 50);
+      }
+      document.getElementById("year").textContent = new Date().getFullYear();
+      updateCounters();
+    })();
+
+    // form handler
+    document.getElementById("signupForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const left = getNum(KEY_LEFT, 50);
+
+      const result = document.getElementById("result");
+      result.style.display = "block";
+
+      if(left <= 0){
+        result.textContent = "Sorry — demo promo codes are exhausted. Click 'Reset Demo Counters' to refill.";
+        updateCounters();
+        return;
+      }
+
+      const name = document.getElementById("name").value.trim() || "Customer";
+      const email = document.getElementById("email").value.trim();
+      const channel = document.getElementById("channel").value;
+      const tier = document.getElementById("tier").value;
+
+      const code = makeCode();
+      setNum(KEY_LEFT, left - 1);
+
+      result.innerHTML =
+        "<b>Promo generated!</b><br>" +
+        "Hi " + escapeHtml(name) + ", your promo code is: <code>" + code + "</code><br>" +
+        "Channel: <b>" + escapeHtml(channel) + "</b> · Type: <b>" + escapeHtml(tier) + "</b><br>" +
+        "Use it during checkout (simulated).";
+
+      updateCounters();
+      e.target.reset();
+      document.getElementById("name").focus();
+    });
+
+    // tiny sanitizer for display text
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+  </script>
+</body>
+</html>

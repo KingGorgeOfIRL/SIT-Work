@@ -1,3 +1,12 @@
 [submodule "INF1002-PRG-C-PROJECT"]
 	path = INF1002-PRG/C(week 8-13)/Project/SIT-PRG-C-PROJECT
 	url = git@github.com:KingGorgeOfIRL/SIT-PRG-C-PROJECT.git
+[submodule "INF1002-PRG-PY-PROJECT"]
+	path = INF1002-PRG/Python(week1-6)/Project/SIT-PRG-PROJECT
+	url = git@github.com:KingGorgeOfIRL/SIT-PRG-PROJECT.git
+[submodule "INF1001-ITC-WEB-PROJECT"]
+	path = INF1001-ITC/Part2 (week8 - Week 13)/Project/web_proj
+	url = git@github.com:diamond1076767/web_proj.git
+[submodule "ICT1013-Networking/Project/network-proj"]
+	path = ICT1013-Networking/Project/network-proj
+	url = git@github.com:iamsven2005/network-proj.git

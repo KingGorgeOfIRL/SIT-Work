@@ -125,17 +125,17 @@ bool check_input(char input_string[13], char error_msg[255]){
     /* check alphabets and lower case */
     for (int i = 0; i < strlen(input_string);i++){
         if (!isalpha(input_string[i])){
-            error_msg = "Sorry, the word must contain only English letters.";
+            strcpy(error_msg,"Sorry, the word must contain only English letters.\n");
             return false;
         }else if (!islower(input_string[i])){
-            input_string[i] = toupper(input_string[i]);
+            input_string[i] = tolower(input_string[i]);
         }
     }
     return true;
 }
-int match_word(char string1[13],char chr2match){
-    for (int i = 0; i < sizeof(string1);i++){
-        int diff = string1[i] - chr2match;
+int match_word(char string1[13],char chr2match[13]){
+    for (int i = 0; i < 13;i++){
+        int diff = string1[i] - chr2match[0];
         if (diff == 0){
             string1[i] = 0;
             return i;
@@ -149,33 +149,58 @@ int main()
     char player1_input[13];
     char error_msg[255] = "";
     do {
-        printf("%s\nPlayer 1, enter a word of no more than 12 letters:\n",error_msg);
+        printf("%sPlayer 1, enter a word of no more than 12 letters:\n",error_msg);
         scanf("%s",player1_input);
     }while (player1_input != NULL && !check_input(player1_input,error_msg));
 
-    char player2_input[13],tempplayer1[13],single_input, plural = "guesses";
-    strcpy(player1_input,tempplayer1);
-    for (int guess = 0; guess < GUESS_LIMIT; guess++){
+    char player2_input[13],tempplayer1[13],single_input[13], plural[3] = "es";
+    strcpy(tempplayer1,player1_input);
+    int remaining_guess;
+
+    
+    for (remaining_guess = GUESS_LIMIT;remaining_guess >= 0;remaining_guess--){
         printf("Player 2 has so far guessed:\n");
-        for (int i = 0; i < strlen(player1_input); i++){
+        for (int i = 0; i <= strlen(player1_input)-1; i++){
             if (player2_input[i] > 0){
-                printf("%s ",player2_input[i]);
+                printf("%c ",player2_input[i]);
             }else{
                 printf("_ ");
             }
-            if (i == strlen(player1_input)){
-                if (GUESS_LIMIT - guess == 1){
-                    plural = "guess";
+            if (i == strlen(player1_input)-1){
+                if (remaining_guess == 1){
+                    *plural = 0;
                 }
-                printf("\nPlayer 2, you have %d %s remaining. Enter your next guess:",GUESS_LIMIT - guess,plural);
+                printf("\n");
+                /*check win/lose condition before allowing next guess*/
+                if (strcmp(player2_input,player1_input)==0){
+                    printf("Player 2 wins.\n");
+                    return 0;
+                }else if (remaining_guess == 0){
+                    printf("Player 1 wins.\n");
+                    return 0;
+                }
+                printf("Player 2, you have %d guess%s remaining. Enter your next guess:\n",remaining_guess,plural);
             }
         }
         scanf("%s",single_input);
+        bool match = false;
+        /* player 2 input validation and word matching*/
         if (check_input(single_input,error_msg)){
-
+            int position_match = -1;
+            /* loop for multiple matches*/
+            for (int i = 0; i < strlen(player1_input); i++){
+                position_match = match_word(tempplayer1,single_input);
+                if (position_match >= 0){
+                    player2_input[position_match] = single_input[0];
+                    match = true;
+                }
+            }
+            if (match){
+                remaining_guess++;
+            }
         }
+        /* win condition*/
     }
-    /* code here */
-    /*get player input*/
+    printf("Player 1 wins.\n");
     return 0;
 }

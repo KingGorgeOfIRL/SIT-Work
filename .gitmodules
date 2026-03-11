@@ -10,3 +10,6 @@
 [submodule "ICT1013-Networking/Project/network-proj"]
 	path = DIS-WLS-SIT-Y1-S1/ICT1013-Networking/Project/network-proj
 	url = git@github.com:iamsven2005/network-proj.git
+[submodule "DIS-WLS-SIT-Y1-S1/INF1002-PRG/C(week 8-13)/Project/INF1002-PRG-C-PROJECT"]
+	path = DIS-WLS-SIT-Y1-S1/INF1002-PRG/C(week 8-13)/Project/INF1002-PRG-C-PROJECT
+	url = git@github.com:KingGorgeOfIRL/SIT-PRG-C-PROJECT.git

@@ -96,10 +96,14 @@ typedef struct LinkedList
 int validate_input(char string[255]){
     int string_length = strlen(string);
     if (string_length <= max_length_word){
-        for (int i = 0; i <= string_length; i++){
-            string +i;
-            if (!(isalpha(string[i]) || string + i == "\'" || string + i == "-")){
-                return 0;
+        for (int i = 0; i < string_length; i++){
+            char letter = string[i];
+            if (!(isalpha(string[i]) || letter == '\'' || letter == '-')){
+                if (strstr(string,stop_condition) == NULL){
+                    return 0;
+                }else{
+                    return -1;
+                }
             }
             if(isupper(string[i])){
                 string[i] = tolower(string[i]);
@@ -114,24 +118,54 @@ int validate_input(char string[255]){
 int main() 
 {
     char input[255];
-    LinkedList word_list;
+    LinkedList *head;
+    int result = 0;
     do{
+        LinkedList *current = head;
+        /*get user input*/
         printf("Please enter a word:\n");
-        scanf("%s",input);
-        if (validate_input(input) == 1){
-            if (word_list.string == NULL){
-                strcpy(word_list.string,input);
+        scanf("%[^\n]%*c",input);
+        int result = validate_input(input);
+        if (result == 1){
+            LinkedList *new_link = (LinkedList*)malloc(sizeof(LinkedList));
+            strcpy(new_link->string,input);
+            /* first link initialisation */
+            if (head->string == NULL){
+                head = new_link;
             }
-            LinkedList *current = &word_list;
-            while (current->next_node != NULL){
-                current = current->next_node;
-            }
+            /* link before head */
+            else if (strcmp(head->string, input) > 0){
+                new_link->next_node = head;
+                head = new_link;
+            }else{
+                while (current->next_node != NULL) {
+                    /* middle of chain */
+                    int lesser_than = strcmp(current->string, input);
+                    int greater_than = strcmp(current->next_node->string,input);
+                    if (strcmp(current->string, input) <= 0 && strcmp(current->next_node->string,input) > 0){
+                        new_link->next_node = current->next_node;
+                        current->next_node = new_link;
+                        break;
+                    }
+                    current = current->next_node;
+                }
+                /* end link */
+                if (current->next_node == NULL){
+                    current->next_node = new_link;
+                }
+            } 
+        }else if (result == -1){
+            break;
         }else{
             printf("Invalid word.\n");
         }
-    }while (strstr(input,stop_condition) == NULL);
+    }while (result != -1);
 
-    /* code here */
-    
+    /*return ordered list*/
+    printf("All the entered words in order:\n");
+    while (head != NULL){
+        printf("%s\n",head->string);
+        head = head->next_node;
+    }
     return 0;
 }

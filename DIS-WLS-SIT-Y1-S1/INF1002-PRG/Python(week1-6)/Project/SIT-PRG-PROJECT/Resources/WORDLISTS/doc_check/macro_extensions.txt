@@ -1,4 +1,0 @@
-docm
-xlsm
-pptm
-dotm

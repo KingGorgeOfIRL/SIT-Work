@@ -1,6 +1,0 @@
-singtel
-google
-microsoft
-apple
-amazon
-paypal

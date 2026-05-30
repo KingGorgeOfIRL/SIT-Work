@@ -1,0 +1,467 @@
+bridge config (permenant) (networking)
+sudo nmcli connection down enx68da73a08006
+sudo nmcli connection add type bridge con-name br1 ifname br1
+sudo nmcli connection add type bridge-slave con-name br1-slave ifname enx68da73a08006 master br1
+sudo nmcli connection modify br1 bridge.stp no
+sudo nmcli connection down "Wired connection 2"
+sudo nmcli connection up br1
+sudo service NetworkManager restart
+sudo nmcli device
+virsh shutdown Kali-Lab
+virsh attach-interface Kali-Lab --type bridge --source br1 --model virtio --config
+virsh start Kali-Lab
+virsh domiflist Kali-Lab
+
+
+bridge config (temp)
+sudo brctl addbr br0
+sudo brctl stp br0 off
+sudo brctl setfd br0 0
+sudo brctl setageing br0 0
+sudo brctl addif br0 enx68da73a08006
+
+sudo ip link set br0 promisc on
+sudo ip link set enx68da73a08006 promisc on
+sudo ip link set enx68da73a08006 up
+sudo ip link set br0 up
+virsh shutdown Kali-Lab
+virsh attach-interface Kali-Lab --type bridge --source br0 --model virtio --config
+virsh start Kali-Lab
+virsh domiflist Kali-Lab
+
+LAB 1.1 (MAC flooding)
+cisco L2 port security
+
+Enter Interface Configuration: interface <interface_id>
+Set Mode to Access: switchport mode access
+Enable Port Security: switchport port-security
+Configure Maximum (Optional): switchport port-security maximum <value>
+Enable Sticky MAC (Optional): switchport port-security mac-address sticky
+Set Violation Action (Optional): switchport port-security violation {protect | restrict | shutdown}
+
+
+port-security-sticky triggers for ANY different MAC address even if the new MAC is from a valid device
+
+Lab 1.2 (Switch trunk spoofing)
+Lab setup:
+config command
+SW1
+    enable
+    configure terminal
+    hostname SW1
+    
+    interface g1/0/1
+    switchport mode dynamic auto
+
+    interface g1/0/2
+    switchport mode access
+    switchport access vlan 10
+
+    interface g1/0/24
+    switchport mode trunk
+
+SW2
+    enable
+    configure terminal
+    hostname SW2
+    interface g1/0/2
+
+    switchport mode access
+    switchport access vlan 10
+
+    interface g1/0/24
+    switchport mode trunk
+
+switch spoofing attack:
+takes advantage of DTP to form a trunk using yersinia
+
+defense against switch spoofing:
+explicitly configure trunks and include nonegotiate(explictly)
+
+SW1
+    interface g1/0/1
+    switchport mode trunk
+    switchport nonegotiate
+
+relfections:
+minimise use of dynamic protocols (at least for base connections like vlan/trunks) and shutdown all ports, only explicitly enable ports
+
+Lab 1.3 (VLAN Double Tagging on a voice port)
+Lab Setup:
+Config Commands:
+SW1
+    enable
+    configure terminal
+    hostname SW1
+    
+    interface range g1/0/1-2
+    switchport mode access 
+    switchport access vlan 1
+
+    interface g1/0/24
+    switchport mode trunk
+    switchport trunk native vlan 1
+
+SW2
+    enable
+    configure terminal
+    hostname SW2
+
+    interface g1/0/2
+    switchport mode access
+    switchport access vlan 2
+
+    interface g1/0/24
+    switchport mode trunk
+    switchport trunk native vlan 1
+
+double tagging attack:
+
+
+Configure SPAN on switch:
+
+Lab 1.4 (STP root hijacking)
+Lab Setup:
+DSW1:
+    spanning-tree vlan 1 priority 24576
+SW2:
+SW3:
+Attack:
+Attacker/Kali:
+    connect 2 bridge connections to SW2 and 3 (1 works if the adapter speed is slower than the switch port speed, the packets will be set out the incoming port otherwise)
+	sudo ip link add name br0 type bridge
+	sudo ip link set eth0 master br0
+	sudo ip link set eth1 master br0
+	sudo ip link set br0 up
+	sudo brctl stp br0 on
+	sudo ip link set dev br0 type bridge priority 20480
+defenses:
+    use Rootguard,BPDUguard and PortFast on all Host facing switch ports on the network
+    Switch(config-if)# spanning-tree guard root
+    Switch(config-if)# spanning-tree portfast
+    Switch(config-if)# spanning-tree bpduguard enable
+    optionally, these can be configured globally and specific ports are whitelisted
+    portfast can only be enabled on access ports which allows it to immediately transition to a forwarding state
+    ports with both BPDUguard and portfast will shutdown if they receive a BPDU
+    RootGuard enforces root placement and prevents hijackings like this from happening        
+
+Lab 1.4 (DHCP starvation & DNS spoofing)
+Lab Setup:
+SW1
+R1:
+    ip dhcp exclude-address 192.168.1.1
+    ip dhcp pool IP_POOL
+    network 192.168.1.0 255.255.255.128
+    lease 2
+    default-router 192.168.1.1
+
+    interface g0/0/1
+    ip address 192.168.1.1 255.255.255.0
+    no shutdown
+
+Attack:
+Attacker/Kali:
+    exhaust the IP pool with dhcpig 
+    run msfconsole dhcp server right after
+    once the target has been intercepted, attacks like DNSspoofing are possible using DNSchef
+
+Defense:
+    to prevent the actual exhasution of IP addresses:
+        use port security on switches to prevent exhaustion through MAC flooding
+        enable ip dhcp snooping on switches to allow the switch to inspect DHCP packets and enable mac verification to check if the L2 source MAC matches the DHCP client MAC field
+    DHCP snooping
+        ip dhcp snooping
+        ip dhcp snooping <vlan-id>
+    MAC address verification (matches the L2 source MAC to the DHCP Client MAC)
+        ip dhcp snooping verify mac-address
+    interface specific ratelimiting
+        (config-if)# ip dhcp snooping limit rate <rate>
+  
+    untrusted ports in dhcp snooping means that the switch will stop/drop DHCP response messages(Offer,Ack,Nck) coming from those ports 
+    trust interface
+        (config-if)# ip dhcp snooping trust
+    
+    switches with DHCP snooping enabled will automatically insert an option-82 (VLAN,Port number and MAC address of client) into the DHCP packets and leave teh relay agent IP blank
+    DHCP packets without relay agent IPs and have option-82 will be discarded by receiving relay agents or routers, to solve, useL
+    ip dhcp relay information trust-all
+    or
+    (config-if)# ip dhcp relay information trusted
+    to allow the packet through on the agents/routers or disable option-82 on the snooping switch
+    no ip dhcp snooping information option
+    
+snooping switchs maintain a binding table of assigned dhcp address on untrusted ports with ACK messages adding to the table and NACK/Release/Decline removing entries
+
+Lab 1.6 (ARP poisoning)
+Lab Setup-Config
+R1:
+    interface g0/0/0
+    ip address 192.168.1.254 255.255.255.0
+    ip nat inside
+    no shutdown
+
+    interface g0/0/1
+    ip address 172.17.9.105 255.255.255.252
+    ip nat outside
+    no shutdown
+    
+    ip nat pool POOL1 203.149.210.209 203.149.210.214 netmask 255.255.255.248
+    access-list 1 permit 192.168.1.0 0.0.0.255
+    ip nat inside source list 1 pool POOL1
+    ip route 0.0.0.0 0.0.0.0 g0/0/1
+
+attack: (kali)
+bettercap - uses GARP to become the Mitm 
+
+defense:
+    DHCP snooping and Dynamic ARP Inspection (DAI) can be configured together
+    enable ip dhcp snooping and Dynamic ARP Inspection (DAI) (DHCP snooping and DAI are similar):
+    ip dhcp snooping
+    ip dhcp snooping vlan 1
+    ip arp inspection vlan 1
+
+    interface g1/0/24
+    ip arp inspection trust
+    ip dhcp snooping trust    
+
+    or seperately via a ARP ACL in a non-DHCP environment:
+    arp access-list STATIC_ARP_ACL1
+    permit ip host 192.168.1.2 mac host 74-D4-DD-81-5C-45
+    ip arp inspection vlan 1
+    ip arp inspection filter STATIC_ARP_ACL1 VLAN 1
+    interface g1/0/24
+    ip arp inspection trust
+
+Lab 1.7 (ARP spoofing)
+Lab Setup-Config
+set up a L3 switch to connect the server on VLAN 10 on SW2 to the client and attacker on VLAN 30 on SW3
+the L3 is configured to have inter-VLAN routing between the 2 switch as well as an ACL to whitelist the client
+commands
+DSW1
+    ip routing
+
+    vlan 30
+    interface vlan 30
+    ip address 172.16.3.1 255.255.255.0
+    no shutdown 
+    
+    access-list 1 permit 172.16.3.10
+    vlan 10
+    interface vlan 10
+    ip access-group 1 out
+    ip address 172.16.1.1 255.255.255.0
+    no shutdown
+
+    interface g1/0/23
+    switchport mode access
+    switchport access vlan 30
+    
+    interface g1/0/24
+    switchport mode access
+    switchport access vlan 10
+    
+     
+SW3
+    interface range g1/0/1-2, g1/0/24
+    switchport mode access
+    switchport access vlan 30
+
+SW2
+    interface range g1/0/1, g1/0/23
+    switchport mode access
+    switchport access vlan 10
+
+attack (Kali):
+    assume the IP of the client to pring the server
+
+defence:
+    to prevent the attacker from simiply changing their IP,use IP source guard with:
+    (config-if)# ip verify source
+    
+    to protect against both IP and MAC spoofing attacks use,
+    (config-if)# ip verify source mac-check
+    
+    commands (part 1):
+    DSW1:
+    ip dhcp snooping
+    interface g1/0/23
+    ip verify source mac-check
+    
+     ip source binding 74D4.DD81.5CF5 vlan 30 172.16.3.10 interface g1/0/24
+
+    explaination:
+    IP source guard requires both DHCP snooping and Port Security for IP and MAC protections. with both foundational security function enabled, IP source guard uses a Source IP-MAC-Port binding to filter traffic.
+    this source IP is learnt by DHCP snooping or by manual configuration thus if only DHCP snooping is configured, only DHCP packets and assigned addresses will be allowed through, all else being filtered.
+    IPSG is only supported on L2 ports (access and trunk) and can be configured with source IP filtering or both IP and MAC
+
+    note: for some reason, port security sees the client as a port violation even if there is an ip binding, i think its because the client is connected to SW3 which is conncected the the port with port security enabled.
+
+
+question:
+   what happens is an attacker just assumes both MAC and IP of client
+
+
+Lab 2.1 (Standard ACL config)
+Lab Config/commands:
+R1:
+interface g0/0/0 
+    ip address 10.2.2.2 255.255.255.252
+    no shutdown
+
+interface 0/0/1
+    ip address 10.1.1.2 255.255.255.252
+    no shutdown
+
+interface lo0
+    ip address 209.165.200.225 255.255.255.224
+
+ip  route 0.0.0.0 0.0.0.0 lo0
+ip route 192.168.10.0 255.255.255.0 10.1.1.1
+ip route 192.168.20.0 255.255.255.0 10.2.2.1
+ip route 192.168.30.0 255.255.255.0 10.1.1.1
+ip route 192.168.40.0 255.255.255.0 10.2.2.1
+
+
+DSW1:
+ip routing
+interface vlan 1
+    ip address 192.168.10.1 255.255.255.0
+    no shutdown
+
+interface g1/0/24
+    no switchport
+    ip address 10.1.1.1 255.255.255.252
+    no shutdown
+   
+interface lo0
+    ip address 192.168.30.1 255.255.255.0
+
+ip route 0.0.0.0 0.0.0.0 10.1.1.2
+
+
+DSW2:
+ip routing
+interface vlan 1
+    ip address 192.168.20.1 255.255.255.0
+    no shutdown
+
+interface g1/0/24
+    no switchport
+    ip addres 10.2.2.1 255.255.255.252
+    no shutdown
+
+interface lo0
+    ip address 192.168.40.1 255.255.255.0
+    no shutdown
+
+ip route 0.0.0.0 0.0.0.0 10.2.2.2
+
+SW1
+SW2
+
+ACL config:
+DSW2:
+access-list 1 remark Allow DSW1 LANs Access
+access-list 1 permit 192.168.10.0 0.0.0.255
+access-list 1 permit 192.168.30.0 0.0.0.255
+
+interface g1/0/24
+    ip access-group 1 in
+note:
+IP spoofing is able to get around this standard ACL config
+
+DSW1:
+ip access-list standard BRANCH-OFFICE-POLICY
+    permit host 192.168.20.3
+    permit 192.168.40.0 0.0.0.255
+    permit 209.165.200.224 0.0.0.31
+
+int vlan 1
+    ip access-group BRANCH-OFFICE-POLICY out
+    
+
+
+Lab 2.2 (Advanced ACL Config)
+Lab Config/commands:
+R1:
+interface g0/0/0 
+    ip address 10.2.2.2 255.255.255.252
+    no shutdown
+
+interface 0/0/1
+    ip address 10.1.1.2 255.255.255.252
+    no shutdown
+
+interface lo0
+    ip address 209.165.200.225 255.255.255.224
+
+interface lo1
+    ip address 209.165.201.1 255.255.255.224
+
+router ospf 10
+    network 209.165.201.0 0.0.0.31 area 0
+    network 209.165.200.224 0.0.0.31 area 0
+    network 10.1.1.0 0.0.0.3 area 0
+    network 10.2.2.0 0.0.0.3 area 0
+
+DSW1:
+ip routing
+interface vlan 1
+    ip address 192.168.10.1 255.255.255.0
+    no shutdown
+
+interface g1/0/24
+    no switchport
+    ip address 10.1.1.1 255.255.255.252
+    no shutdown
+   
+interface lo0
+    ip address 192.168.30.1 255.255.255.0
+
+ip route 0.0.0.0 0.0.0.0 10.1.1.2
+router ospf 10
+    network 10.1.1.0 0.0.0.3 area 0
+    network 192.168.30.0 0.0.0.255 area 0
+    network 192.168.10.0 0.0.0.255 area 0
+
+DSW2:
+ip routing
+interface vlan 1
+    ip address 192.168.20.1 255.255.255.0
+    no shutdown
+
+interface g1/0/24
+    no switchport
+    ip addres 10.2.2.1 255.255.255.252
+    no shutdown
+
+interface lo0
+    ip address 192.168.40.1 255.255.255.0
+    no shutdown
+
+ip route 0.0.0.0 0.0.0.0 10.2.2.2
+router ospf 10
+    network 10.2.2.0 0.0.0.3 area 0
+    network 192.168.20.0 0.0.0.255 area 0
+    network 192.168.40.0 0.0.0.255 area 0
+
+SW1
+SW2
+
+ACL config:
+DSW1:
+    access-list 100 permit tcp host 192.168.10.3 host 10.2.2.1 eq 22 log
+    access-list 100 permit tcp 192.168.10.0 0.0.0.255 any eq 443 log
+
+interface vlan 1
+    ip access-group 100 in
+DSW2:
+ip access-list extended WEB-POLICY
+    permit tcp 192.168.20.0 0.0.0.255 host 10.1.1.1 eq 443
+    permit tcp 192.168.20.0 0.0.0.255 209.165.200.224 0.0.0.31 eq 443
+    permit ip 192.168.20.0 0.0.0.255 192.168.10.0 0.0.0.255
+
+interface vlan 1
+    ip access-group WEB-POLICY in
+
+
+

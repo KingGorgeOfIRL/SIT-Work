@@ -1,0 +1,46 @@
+LAN (OSPF) < WAN (BGP): outage cause of overwelming number of routes (bad but not causeable)
+LAN (OSPF) > WAN (BGP): possible route redirection via route redistribution
+
+OSPF to BGP route redistribution done via 3 ways:
+1) share via OSPF processes (all areas in an area, basically everything)
+2) share via OSPG processes including external routes
+3) share via route maps (basically ACLs for routes)
+
+OSPF behaviour:
+* Fight-back mechanism
+
+
+scenario
+
+
+BGP
+basic operation:
+ASN manually configured, eBGP and IBGP are deteremined if the router and its neighbor is the same or different respectively
+open messages share the ASN of the router
+BGP neighbors must be configured with both IP and ASN, unless the configuration is done with a dynamic bgp range config which allows ip of a range to be associated with an ASN 
+the BGP types are session-based/link-based not router global
+may assign its own attributes to the route (not carrying over bogus tags)
+OSPF routes will be marked as Incomplete whereas IGP will be marked as such (a marked origin will be preferred to an incomplete one)
+
+research:
+https://www.ndss-symposium.org/wp-content/uploads/2017/09/01_3.pdf
+attacks on OSPF and further papers
+https://docs.lib.purdue.edu/cgi/viewcontent.cgi?article=1365&context=ecetr
+security measures against BGP hijacking (and background on BGP hijacking) (old, 2007)
+
+https://datatracker.ietf.org/doc/html/draft-ietf-rpsec-ospf-vuln-02
+https://www.rfc-editor.org/info/rfc2328/
+
+areas to test:
+
+OSPF attacker router with lower metric route to server ip on Org C redistributes route to BGP network, best case(lower metric route results in route redirection) worst case (nothing)(probly wont work)
+possible futures: metric research (requires packet reconstruction)
+
+how does BGP view redistribtued routes? (is the metric affected) (how does BGP multipath work)
+
+spoofed BGP route packet? (need to spoof eBGP packet)
+
+
+BGP side defenses (Resource Public Key Infrastructure-RPKI, BGPsec) (must check if measures are available on cisco)
+
+

@@ -380,7 +380,7 @@ int vlan 1
     
 
 
-Lab 2.2 (Advanced ACL Config)
+Lab 2.1b (Advanced ACL Config)
 Lab Config/commands:
 R1:
 interface g0/0/0 
@@ -463,5 +463,115 @@ ip access-list extended WEB-POLICY
 interface vlan 1
     ip access-group WEB-POLICY in
 
+Lab 2.2 
+Lab Config:
+Firewall:
+en
+Student@s1t
+Student@s1t
+conf t
+interface e1/1
+    no switchport
+    description Outside
+    ip address 23.1.2.3 255.255.255.0
+    nameif outside
+    security-level 0
+    no shutdown
+interface e1/3
+    no switchport
+    description DMZ
+    ip address 192.168.2.254 255.255.255.0
+    nameif DMZ
+    security-level 50
+    no shutdown
+interface e1/5
+    no switchport
+    description inside
+    ip address 10.0.0.1 255.255.255.0
+    nameif inside
+    security-level 100
+    no shutdown
+
+object network obj_any
+    no nat (any,outside) dynamic interface
+
+int vlan 1
+    no nameif inside
+! allow outside access to DMZ and icmp!
+access-list 100 permit tcp any host 192.168.2.10 eq www
+access-group 100 in int outside
+
+access-list ICMP-Allow permit icmp any any
+
+class-map inspection_default
+    match access-list ICMP-Allow
+
+! alter policy map to allow ICMP !
+policy-map global_policy
+    class inspection_default
+    inspect icmp
+
+! apply policy !
+service-policy global_policy global
+
+
+! restore factory-default !
+configure factory-default
+
+Lab 2.3 (Ping Sweeping + port scanning)
+Lab Config:
+R1:
+no
+Student@s1t
+Student@s1t
+0
+
+en
+conf t
+interface g0/0/0
+    description attacker
+    ip address 192.168.1.1 255.255.255.0
+    no shutdown
+interface g0/0/1
+    description PC-B
+    ip address 192.168.2.1 255.255.255.0
+    no shutdown
+interface g0/1/0
+    description PC-A
+    ip address 192.168.3.1 255.255.255.0
+    no shutdown
+
+access-list 100 permit tcp any host 192.168.2.1 eq 80,443
+
+interface g0/0/0
+    ip access-group allowweb in
+    no ip unreachables
+
+Firewall:
+en
+Student@s1t
+Student@s1t
+conf t
+interface e1/1
+    no switchport
+    description attacker
+    ip address 192.168.1.1 255.255.255.0
+    nameif outside
+    no shutdown
+interface e1/3
+    no switchport
+    description PC-B
+    ip address 192.168.2.1 255.255.255.0
+    nameif dmz    
+    no shutdown
+interface e1/5
+    no switchport
+    description PC-A
+    ip address 192.168.3.1 255.255.255.0
+    nameif inside
+    no shutdown
+
+access-list permit tcp any host 192.168.2.1 eq 80,443
+access-group 100 in int outside
 
 

@@ -1,0 +1,84 @@
+
+ISP-C1:
+conf t
+int g0/0/0
+    descrip KaliLinux-1
+    ip addr 30.0.0.2 255.255.255.0
+    no shut
+int g0/0/1
+    descrip ISP-C2
+    ip addr 172.16.10.2 255.255.255.0
+    no shut
+router bgp 65003
+    network 30.0.0.0 mask 255.255.255.0
+    network 172.16.10.0 mask 255.255.255.0
+    neighbor 30.0.0.1 remote-as 65004
+    neighbor 172.16.10.1 remote-as 65003
+    neighbor 30.0.0.1 activate
+    neighbor 172.16.10.1 activate
+
+ISP-C2:
+conf t
+int g0/0/1
+    descrip ISP-C1
+    ip addr 172.16.10.1 255.255.255.0
+    no shut
+int g0/1/0
+    descrip ISP-A
+    ip addr 20.0.0.1 255.255.255.0
+    no shut
+int g0/0/0
+    descrip Intra-Host2
+    ip addr 192.168.10.1 255.255.255.0
+    no shut
+router bgp 65003
+    network 172.16.10.0 mask 255.255.255.0
+    network 20.0.0.0 mask 255.255.255.0
+    network 192.168.10.0 mask 255.255.255.0
+    neigh 172.16.10.2 remote-as 65003
+    neigh 20.0.0.2 remote-as 65002
+    neigh 172.16.10.2 activate
+    neigh 20.0.0.2 activate
+
+ISP-A:
+conf t
+int g0/0/1
+    descrip ISP-C2
+    ip addr 20.0.0.2 255.255.255.0
+    no shut
+int g0/1/1
+    descrip OrgB
+    ip addr 10.0.0.2 255.255.255.0
+    no shut
+router bgp 65002
+    network 20.0.0.0 mask 255.255.255.0
+    network 10.0.0.0 mask 255.255.255.0
+    neigh 20.0.0.1 remote-as 65003
+    neigh 10.0.0.1 remote-as 65001
+    neigh 20.0.0.1 activate
+    neigh 10.0.0.1 activate
+
+OrgB:
+conf t
+int g0/1/1
+    descrip ISP-A
+    ip addr 10.0.0.1 255.255.255.0
+    no shut
+int g0/0/0
+    descrip WebServer
+    ip addr 192.168.20.1 255.255.255.0
+    no shut
+router bgp 65001
+    network 10.0.0.0 mask 255.255.255.0
+    network 192.168.20.0 mask 255.255.255.0
+    neigh 10.0.0.2 remote-as 65002
+    neigh 10.0.0.2 activate
+
+
+
+
+
+
+
+
+

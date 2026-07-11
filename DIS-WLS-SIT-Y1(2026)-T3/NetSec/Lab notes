@@ -574,4 +574,177 @@ interface e1/5
 access-list permit tcp any host 192.168.2.1 eq 80,443
 access-group 100 in int outside
 
+Lab 2.4 (Amplification and Reflection attack) (GNS3)
+Lab Setup:
+R1:
+interface g0/0
+    description Attacker
+    ip address 192.168.1.1 255.255.255.0
+    no shutdown
+interface g1/0
+    description Intranet
+    ip address 171.1.0.1 255.255.0.0
+    ip directed-broadcast
+    no shutdown
+interface g2/0
+    description DMZ
+    ip address 200.0.0.1 255.0.0.0
+    ip directed-broadcast
+    no shutdown
+S1
+
+
+defenses:
+the defenses for this lab are enabled by default, thus to simulate the attack, they must be disabled
+there are other defenses such as using ACLs to prevent spoofing attacks by only allowing a select range of incoming ips or excluding internal ips from being entering from outside interfaces
+
+
+Lab 2.5 (SYN Flooding) (GNS3)
+Lab Config:
+Firewall:
+en
+asher261412
+conf t
+interface G0/0
+    description Outside
+    ip address 192.168.10.1 255.255.255.0
+    nameif outside
+    security-level 0
+    no shutdown 
+interface G0/1
+    description DMZ
+    security-level 50
+    ip address 192.168.20.1 255.255.255.0
+    nameif DMZ
+    no shutdown
+interface G0/2
+    description Inside
+    security-level 100
+    ip address 192.168.30.1 255.255.255.0
+    nameif Inside
+    no shutdown
+access-list TCP-LIMIT extended permit tcp  any host 192.168.20.10 eq 80
+access-group TCP-LIMIT in interface outside
+
+Host (PC-A): 192.168.30.10
+Web-Server (PC-B): 192.168.20.10
+kali: 192.168.10.10
+
+defense:
+Firewall:
+class-map TCP-LIMIT-CLASS
+    match access-list TCP-LIMIT
+policy-map TCP-LIMIT-POLICY
+    class TCP-LIMIT-CLASS
+! number of total connections!
+    set connection embryonic-conn-max 100
+! number of connections per client. lower the better !
+    set connection per-client-embryonic-max 5
+
+service-policy TCP-LIMIT-POLICY interface outside
+
+Lab 2.6 (Slowlaris) (GNS3)
+Lab Config:
+Firewall:
+en
+asher261412
+conf t
+interface G0/0
+    description Outside
+    ip address 192.168.10.1 255.255.255.0
+    nameif outside
+    security-level 0
+    no shutdown 
+interface G0/1
+    description DMZ
+    security-level 50
+    ip address 192.168.20.1 255.255.255.0
+    nameif DMZ
+    no shutdown
+interface G0/2
+    description Inside
+    security-level 100
+    ip address 192.168.30.1 255.255.255.0
+    nameif Inside
+    no shutdown
+access-list HTTP-ALLOW extended permit tcp  any host 192.168.20.10 eq 80
+access-group HTTP-ALLOW in interface outside
+
+Host (PC-A): 192.168.30.10
+Web-Server (PC-B): 192.168.20.10
+kali: 192.168.10.10
+
+
+defence:
+class-map HTTP-ALLOW-CLASS
+    match access-list HTTP-ALLOW
+policy-map HTTP-ALLOW-POLICY
+    class HTTP-ALLOW-CLASS
+    set connection conn-max 50
+service-policy HTTP-ALLOW-POLICY interface outside
+
+theory:
+Slowloris attack takes advantange of HTTP requiring the HTTP request header to be fully received before responding, thus an infinate number of connections can be DoSed
+
+Lab 3.1 (Out-Of-Band Management via Jumb Server):
+Lab Config:
+hostname R1
+ip domain-name R1
+crypto key gen rsa mod 2048
+ip ssh v 2
+username admin secret admin
+line vty 0 15
+    login local
+    transport input ssh
+vrf definition VRF-Config
+    address-family ipv4
+int g0/0
+    description Admin
+    ip address 192.168.30.1 255.255.255.0
+    no shut
+
+int g1/0
+    description Jumpsrv
+    ip address 192.168.10.1 255.255.255.0
+    no shut
+int g2/0
+    description Config
+    vrf forwarding VRF-Config
+    ip address 192.168.20.1 255.255.255.0
+    no shut
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

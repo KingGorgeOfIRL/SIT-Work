@@ -713,6 +713,10 @@ int g2/0
     ip address 192.168.20.1 255.255.255.0
     no shut
 
+Lab 3.5 (Syslog & NTP)
+R1 (NTP server):
+R2 (NTP client):
+PC-B (Syslog Server):
 
 
 

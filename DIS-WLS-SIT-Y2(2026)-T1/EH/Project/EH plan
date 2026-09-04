@@ -1,0 +1,22 @@
+docker container escape vuln (me)
+
+web-based project - E-Commerce site
+guest user >(Auth Fail) lateral move (user1) > priv esc (admin) > admin console > DB access (Crypto failure)
+
+vuln spots 
+(lateral movement)
+(priv escalate)
+
+infra 
+ngix (front-end firewall + hardening)
+backend (python-Django)
+DB (MySQL)
+
+MITRE 
+Recon (Web + DB)
+Weaponization (Auth Failure)
+Deliver
+Exploit
+install 
+C2 
+Act on objective (Crypto)

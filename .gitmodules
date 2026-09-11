@@ -19,3 +19,6 @@
 	path = DIS-WLS-SIT-Y1(2026)-T2/INF1005-Webtech/GroupProject/web_proj
 	url = https://github.com/diamond1076767/web_proj.git
 #Y1-T3
+[submodule "DIS-WLS-SIT-Y2(2026)-T1/EH/Project/Site"]
+	path = DIS-WLS-SIT-Y2(2026)-T1/EH/Project/Site
+	url = git@github.com:kalios5/Ethical-Hacking-Mod.git
